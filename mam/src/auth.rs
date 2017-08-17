@@ -7,6 +7,7 @@ use trytes::*;
 use errors::*;
 use core::slice;
 
+/*
 pub fn sign<CT, CB, H>(
     message_in: &[Trit],
     next: &[Trit],
@@ -91,6 +92,7 @@ where
         .cloned()
         .collect()
 }
+*/
 
 pub fn authenticate<C>(
     payload: &[Trit],
