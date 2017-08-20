@@ -5,7 +5,13 @@ use sign::iss;
 use core::mem;
 use alloc::*;
 
-pub fn key<C: Curl<Trit>>(seed: &[Trit], index: usize, security: u8, out: &mut [Trit], curl: &mut C) {
+pub fn key<C: Curl<Trit>>(
+    seed: &[Trit],
+    index: usize,
+    security: u8,
+    out: &mut [Trit],
+    curl: &mut C,
+) {
     let mut subseed = [0; HASH_LENGTH];
 
     subseed[0..HASH_LENGTH].clone_from_slice(&seed);
@@ -18,14 +24,27 @@ pub fn key<C: Curl<Trit>>(seed: &[Trit], index: usize, security: u8, out: &mut [
     iss::key::<Trit, C>(out, security, curl);
 }
 
-pub fn siblings<C: Curl<Trit>>(addrs: &[Vec<Trit>], index: usize, curl: &mut C) -> Vec<Vec<Trit>> {
+pub fn siblings<C: Curl<Trit>>(addrs: &[Trit], out: &[Trit], index: usize, curl: &mut C) {
     let usize_size = mem::size_of::<usize>() * 8;
     let hash_count = usize_size - index.leading_zeros() as usize;
+    let place_holder: [Trit; HASH_LENGTH] = [0; HASH_LENGTH];
+    let place_holder_2: [Trit; HASH_LENGTH] = [0; HASH_LENGTH];
 
-    let mut out: Vec<Vec<Trit>> = Vec::with_capacity(hash_count);
+    let mut ouuuut: Vec<Vec<Trit>> = Vec::with_capacity(hash_count);
     let mut hash_index = if index & 1 == 0 { index + 1 } else { index - 1 };
     let mut hashes: Vec<Vec<Trit>> = addrs.to_vec();
     let mut length = hashes.len();
+    let mut ynd = index;
+    let mut sib_i = 0;
+
+    if ynd & 1 == 0 {
+        out[sib_i..sib_i + HASH_LENGTH].clone_from_slice(
+            addrs[ynd * HASH_LENGTH..
+                      (ynd + 1) *
+                          HASH_LENGTH],
+        );
+        sib_i += HASH_LENGTH;
+    }
 
     while length > 1 {
         if length & 1 == 1 {
@@ -33,7 +52,7 @@ pub fn siblings<C: Curl<Trit>>(addrs: &[Vec<Trit>], index: usize, curl: &mut C) 
             length += 1;
         }
 
-        out.push(hashes[hash_index].clone());
+        ouuuut.push(hashes[hash_index].clone());
         hash_index = hash_index / 2;
         if hash_index & 1 == 0 {
             hash_index += 1;
@@ -52,7 +71,6 @@ pub fn siblings<C: Curl<Trit>>(addrs: &[Vec<Trit>], index: usize, curl: &mut C) 
 
         hashes.truncate(length);
     }
-    out
 }
 
 pub fn root<C: Curl<Trit>>(
