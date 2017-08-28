@@ -17,7 +17,7 @@ extern crate iota_curl_cpu as curl_cpu;
 pub mod pascal;
 pub mod errors;
 pub mod mask;
-pub mod auth;
+//pub mod auth;
 mod mam;
 
 pub use mam::*;
